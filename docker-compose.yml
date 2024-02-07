@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  user-app:
+    build:
+      context: ./web/user
+      dockerfile: Dockerfile
+    volumes:
+      - user-app-build:/app/dist
+
+  admin-app:
+    build:
+      context: ./web/admin
+      dockerfile: Dockerfile
+    volumes:
+      - admin-app-build:/app/dist
+
+  server-api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    networks:
+      - backend
+  
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+        - "80:80"
+    volumes:
+      - user:/usr/share/nginx/html/user
+      - admin:/usr/share/nginx/html/admin
+    depends_on:
+      - user-app
+      - admin-app
+      - server-api
+    networks:
+      - backend
+
+volumes:
+  user-app-build:
+  admin-app-build:
+
+networks:
+  backend:
